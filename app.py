@@ -9,6 +9,8 @@ from dash.dependencies import Input, Output, State
 import mne
 from mne.minimum_norm import read_inverse_operator, apply_inverse
 import plotly.graph_objs as go
+from utils.helper_functions import mesh_edges, smoothing_matrix
+
 
 drc = importlib.import_module("utils.dash_reusable_components")
 figs = importlib.import_module("utils.figures")
@@ -101,39 +103,24 @@ inverse_operator = read_inverse_operator(fname_inv)
 evoked = mne.read_evokeds(fname_evoked, condition=0, baseline=(None, 0))
 
 src = inverse_operator['src']
-lh_points = src[0]['rr'][src[0]['vertno'], :]
-rh_points = src[1]['rr'][src[1]['vertno'], :]
+# lh_points = src[0]['rr'][src[0]['vertno'], :]
+# rh_points = src[1]['rr'][src[1]['vertno'], :]
+# points = np.r_[lh_points, rh_points]
+# points *= 170
+
+lh_points = src[0]['rr']
+rh_points = src[1]['rr']
 points = np.r_[lh_points, rh_points]
 points *= 170
 
-faces_l = np.zeros(src[0]['use_tris'].shape)
-faces_l.fill(np.nan)
+vertices = np.r_[src[0]['vertno'], lh_points.shape[0] + src[1]['vertno']]
 
-for index_row, vertices in enumerate(src[0]['use_tris']):
-    for index_item, vertex in enumerate(vertices):
-        try:
-            faces_l[index_row][index_item] = np.where(src[0]['vertno']==src[0]['use_tris'][index_row][index_item])[0][0]
-        except:
-            continue
-faces_l = np.delete(faces_l, np.where(np.isnan(faces_l.sum(1)))[0], 0)
+use_faces = np.r_[src[0]['tris'], lh_points.shape[0] + src[1]['tris']]
 
-faces_r = np.zeros(src[1]['use_tris'].shape)
-faces_r.fill(np.nan)
-
-for index_row, vertices in enumerate(src[1]['use_tris']):
-    for index_item, vertex in enumerate(vertices):
-        try:
-            faces_r[index_row][index_item] = np.where(src[1]['vertno']==src[1]['use_tris'][index_row][index_item])[0][0]
-        except:
-            continue
-faces_r = np.delete(faces_r, np.where(np.isnan(faces_r.sum(1)))[0], 0)
+adj_mat = mesh_edges(use_faces)
+smooth_mat = smoothing_matrix(vertices, adj_mat)
 
 
-use_faces = np.r_[faces_l, lh_points.shape[0] + faces_r]
-
-
-
-data_epochs = evoked.data.T
 
 # Compute inverse solution
 pick_ori = "normal"  # Get signed values to see the effect of sign filp
@@ -141,7 +128,7 @@ stc = apply_inverse(evoked, inverse_operator, lambda2, method,
                     pick_ori=pick_ori)
 index_time = np.abs(stc.data).mean(0).argmax()
 
-data=plotly_triangular_mesh(points, use_faces, stc.data[:, index_time],
+data=plotly_triangular_mesh(points, use_faces, smooth_mat*stc.data[:, index_time],
                             colorscale=DEFAULT_COLORSCALE, flatshading=False,
                             showscale=False, reversescale=False, plot_edges=False)
 
@@ -338,8 +325,8 @@ app.layout = html.Div(
               [Input('slider-dataset-sample-size', 'value')],
               [State('brain-graph', 'figure')])
 def update_graph(selected_dropdown_value, figure):
-    index_time = (np.abs(stc.times*1000-selected_dropdown_value)).argmin()
-    data = plotly_triangular_mesh(points, use_faces, stc.data[:, index_time],
+    index = (np.abs(stc.times*1000-selected_dropdown_value)).argmin()
+    data = plotly_triangular_mesh(points, use_faces, smooth_mat*stc.data[:, index],
                                   colorscale=DEFAULT_COLORSCALE, flatshading=False,
                                   showscale=False, reversescale=False, plot_edges=False)
     figure["data"] = data
