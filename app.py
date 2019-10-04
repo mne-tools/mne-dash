@@ -1,4 +1,4 @@
-import time
+import nibabel
 import importlib
 
 import dash
@@ -95,6 +95,11 @@ data_path = mne.datasets.sample.data_path()
 fname_inv = data_path + '/MEG/sample/sample_audvis-meg-oct-6-meg-inv.fif'
 fname_inv = data_path + '/MEG/sample/sample_audvis-meg-oct-6-meg-inv.fif'
 fname_evoked = data_path + '/MEG/sample/sample_audvis-ave.fif'
+freesurfer_path = data_path + "/subjects/sample/surf/"
+
+lh = nibabel.freesurfer.io.read_geometry(freesurfer_path + "lh.inflated")[0]
+rh = nibabel.freesurfer.io.read_geometry(freesurfer_path + "rh.inflated")[0]
+rh[:,0] = rh[:,0] + 85
 
 snr = 3.0
 lambda2 = 1.0 / snr ** 2
@@ -110,6 +115,8 @@ src = inverse_operator['src']
 
 lh_points = src[0]['rr']
 rh_points = src[1]['rr']
+lh_points = lh
+rh_points = rh
 points = np.r_[lh_points, rh_points]
 points *= 170
 
