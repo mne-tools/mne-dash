@@ -21,9 +21,8 @@ app = dash.Dash(
 )
 server = app.server
 
-DEFAULT_COLORSCALE = [[0, 'rgb(12,51,131)'], [0.25, 'rgb(10,136,186)'], \
-                      [0.5, 'rgb(242,211,56)'], [0.75, 'rgb(242,143,56)'], \
-                      [1, 'rgb(217,30,30)']]
+DEFAULT_COLORSCALE = [[0, 'rgb(12,51,131)'], [0.25, 'rgb(10,136,186)'],
+                      [0.5, 'rgb(242,211,56)'], [0.75, 'rgb(242,143,56)'], [1, 'rgb(217,30,30)']]
 
 DEFAULT_COLORSCALE_NO_INDEX = [ea[1] for ea in DEFAULT_COLORSCALE]
 
@@ -49,7 +48,7 @@ def plotly_triangular_mesh(vertices, faces, intensities=None, colorscale="Viridi
         showscale=showscale
     )
 
-    mesh.update(lighting=dict(ambient=0.18,
+    mesh.update(lighting=dict(ambient=0.8,
                               diffuse=1,
                               fresnel=0.1,
                               specular=1,
@@ -92,7 +91,6 @@ def plotly_triangular_mesh(vertices, faces, intensities=None, colorscale="Viridi
 data_path = mne.datasets.sample.data_path()
 
 fname_inv = data_path + '/MEG/sample/sample_audvis-meg-oct-6-meg-inv.fif'
-fname_inv = data_path + '/MEG/sample/sample_audvis-meg-oct-6-meg-inv.fif'
 fname_evoked = data_path + '/MEG/sample/sample_audvis-ave.fif'
 freesurfer_path = data_path + "/subjects/sample/surf/"
 
@@ -108,8 +106,6 @@ evoked = mne.read_evokeds(fname_evoked, condition=0, baseline=(None, 0))
 
 src = inverse_operator['src']
 
-lh_points = src[0]['rr']
-rh_points = src[1]['rr']
 lh_points = lh
 rh_points = rh
 points = np.r_[lh_points, rh_points]
@@ -260,7 +256,7 @@ app.layout = html.Div(
                                             max=evoked.times.max() * 1000,
                                             step=len(evoked.times),
                                             marks={ii: '{0:.0f}'.format(ii) if ii == evoked.times[0] * 1000 else
-                                            '{0:.0f}'.format(ii) if not (i_l % 100) else ''
+                                                '{0:.0f}'.format(ii) if not (i_l % 100) else ''
                                                    for i_l, ii in enumerate(evoked.times * 1000)},
                                             value=int(len(evoked.times) / 2),
                                         ),
