@@ -269,8 +269,8 @@ app.layout = html.Div(
                                             max=evoked.times.max()*1000,
                                             step=len(evoked.times),
                                             marks={ii: '{0:.0f}'.format(ii) if ii == evoked.times[0]*1000 else
-                                            '{0:.0f}'.format(ii) if ii ==evoked.times[-1]*1000 else ''
-                                                   for ii in evoked.times*1000},
+                                            '{0:.0f}'.format(ii) if not(i_l % 100) else ''
+                                                   for i_l, ii in enumerate(evoked.times*1000)},
                                             value=int(len(evoked.times)/2),
                                         ),
                                         drc.NamedSlider(
