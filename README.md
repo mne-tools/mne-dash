@@ -34,7 +34,7 @@ python app.py
 ## About the app
 ### How does it work?
 
-This app is fully written in Dash + scikit-learn. 
+This app is fully written in Dash + mne-python. 
 
 ## Built With
 * [Dash](https://dash.plot.ly/) - Main server and interactive components
