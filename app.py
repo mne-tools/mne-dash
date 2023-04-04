@@ -90,12 +90,12 @@ def plotly_triangular_mesh(vertices, faces, intensities=None, colorscale="Viridi
 
 data_path = mne.datasets.sample.data_path()
 
-fname_inv = data_path + '/MEG/sample/sample_audvis-meg-oct-6-meg-inv.fif'
-fname_evoked = data_path + '/MEG/sample/sample_audvis-ave.fif'
-freesurfer_path = data_path + "/subjects/sample/surf/"
+fname_inv = data_path / 'MEG/sample/sample_audvis-meg-oct-6-meg-inv.fif'
+fname_evoked = data_path / 'MEG/sample/sample_audvis-ave.fif'
+freesurfer_path = data_path / "subjects/sample/surf/"
 
-lh = nibabel.freesurfer.io.read_geometry(freesurfer_path + "lh.inflated")[0]
-rh = nibabel.freesurfer.io.read_geometry(freesurfer_path + "rh.inflated")[0]
+lh = nibabel.freesurfer.io.read_geometry(freesurfer_path / "lh.inflated")[0]
+rh = nibabel.freesurfer.io.read_geometry(freesurfer_path / "rh.inflated")[0]
 rh[:, 0] = rh[:, 0] + 85
 
 snr = 3.0
